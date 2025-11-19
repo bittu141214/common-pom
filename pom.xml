@@ -5,8 +5,8 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycrmworld</groupId>
-    <artifactId>parent-pom</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>common-pom</artifactId>
+    <version>1.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Parent POM</name>
     <description>Parent POM for Mycrmworld microservices</description>
@@ -30,12 +30,34 @@
         <commons.codec.version>1.16.0</commons.codec.version>
         <commons.lang3.version>3.13.0</commons.lang3.version>
         <poi.version>5.2.4</poi.version>
+        <org.json>20231013</org.json>
+        <commons.fileupload>1.5</commons.fileupload>
+        <model.mapper>3.2.0</model.mapper>
+        <commons.validator>1.7</commons.validator>
+        <spring.messaging>2.2.6.RELEASE</spring.messaging>
+        <io.awspring.cloud>3.2.1</io.awspring.cloud>
+        <firebase.admin>9.2.0</firebase.admin>
+        <common.io>2.14.0</common.io>
+        <open.csv>5.8</open.csv>
+        <common.text>1.10.0</common.text>
+        
         <!-- Add other versions as needed -->
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+           
+            </dependency>
             <!-- Manage dependency versions here to avoid repetition -->
 
+            
+            <dependency>
+                <groupId>com.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>${open.csv}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
@@ -62,11 +84,23 @@
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql.connector.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+            
+            
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons.fileupload}</version>
             </dependency>
 
             <dependency>
@@ -98,14 +132,104 @@
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi.version}</version>
             </dependency>
+            
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${common.text}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.modelmapper</groupId>
+                <artifactId>modelmapper</artifactId>
+                <version>${model.mapper}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>commons-validator</groupId>
+                <artifactId>commons-validator</artifactId>
+                <version>${commons.validator}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-aws-messaging</artifactId>
+                <version>${spring.messaging}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-starter-secrets-manager</artifactId>
+                <version>${io.awspring.cloud}</version>
+            </dependency>
+             
+            <dependency>
+                <groupId>com.google.firebase</groupId>
+                <artifactId>firebase-admin</artifactId>
+                <version>${firebase.admin}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${common.io}</version>
+            </dependency>
+
 
             <!-- Add other managed dependencies here -->
         </dependencies>
     </dependencyManagement>
+    <distributionManagement>
+        
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/bittu141214/common-pom</url>
+        </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages - Snapshots</name>
+            <url>https://maven.pkg.github.com/bittu141214/common-pom</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>2.43.0</version>
+
+                    <configuration>
+                        <java>
+                            <!-- Use Google Java Format -->
+                            <googleJavaFormat>
+                                <version>1.17.0</version>
+                            </googleJavaFormat>
+
+                            <!-- Optional: Cleanup -->
+                          
+                            <importOrder>
+                                <order>java,javax,org,com</order>
+                            </importOrder>
+
+                            <!-- What files to format -->
+                            <includes>
+                                <include>src/main/java/**/*.java</include>
+                                <include>src/test/java/**/*.java</include>
+                            </includes>
+                        </java>
+                    </configuration>
+
+                    <executions>
+                        <!-- Runs spotless:check during mvn verify -->
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <!-- Define plugins and versions here -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
@@ -114,6 +238,29 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
+                </plugin>
+                
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <executions>
+                        <execution>
+                            <id>install-git-hook</id>
+                            <phase>initialize</phase>
+                            <configuration>
+                                <target>
+                                    <copy file="hooks/pre-commit"
+                                          tofile="${project.basedir}/.git/hooks/pre-commit"
+                                          overwrite="true"/>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
