@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycrmworld</groupId>
     <artifactId>common-pom</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.14-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Parent POM</name>
     <description>Parent POM for Mycrmworld microservices</description>
@@ -40,6 +40,7 @@
         <common.io>2.14.0</common.io>
         <open.csv>5.8</open.csv>
         <common.text>1.10.0</common.text>
+        <spotless.version>2.43.0</spotless.version>
         
         <!-- Add other versions as needed -->
     </properties>
@@ -193,27 +194,28 @@
     </distributionManagement>
 
     <build>
+
         <pluginManagement>
             <plugins>
+
+                <!-- Spotless for all microservices -->
                 <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>
-                    <version>2.43.0</version>
+                    <version>${spotless.version}</version>
 
                     <configuration>
                         <java>
-                            <!-- Use Google Java Format -->
                             <googleJavaFormat>
                                 <version>1.17.0</version>
                             </googleJavaFormat>
 
-                            <!-- Optional: Cleanup -->
-                          
                             <importOrder>
                                 <order>java,javax,org,com</order>
                             </importOrder>
+                            <trimTrainlingWhitespace></trimTrainlingWhitespace>
+                            <endWithNewline/>
 
-                            <!-- What files to format -->
                             <includes>
                                 <include>src/main/java/**/*.java</include>
                                 <include>src/test/java/**/*.java</include>
@@ -222,49 +224,66 @@
                     </configuration>
 
                     <executions>
-                        <!-- Runs spotless:check during mvn verify -->
                         <execution>
                             <goals>
                                 <goal>check</goal>
                             </goals>
+                            <phase>compile</phase>
                         </execution>
                     </executions>
                 </plugin>
-                <!-- Define plugins and versions here -->
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                </plugin>
+
+                <!-- Auto-install pre-commit hook in every microservice -->
                 
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>install-git-hook</id>
-                            <phase>initialize</phase>
-                            <configuration>
-                                <target>
-                                    <copy file="hooks/pre-commit"
-                                          tofile="${project.basedir}/.git/hooks/pre-commit"
-                                          overwrite="true"/>
-                                </target>
-                            </configuration>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>install-git-hooks
+            </id>
+            <activation>
+                <file>
+                    <exists>.git</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                  <id>install-pre-commit-hook</id>
+                                   <phase>initialize</phase>
+                                   <goals>
+                                       <goal>
+                                           run
+                                       </goal>
+                                   </goals>
+                                   <configuration>
+                                       <target>
+                                           
+                                           <copy file="${project.basedir}/.git-hooks/pre-commit"
+                                           tofile="${project.basedir}/.git/hooks/pre-commit"
+                                           overwrite="true"/>
+                                            <chmod file="${project.basedir}/.git/hooks/pre-commit" perm="755" />
+                                       </target>
+                                           
+                                        
+                                   </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            
+        </profile>
+            
+    </profiles>
+    
 
     
 </project>

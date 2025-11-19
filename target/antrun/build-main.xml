@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maven-antrun-" default="main">
+  <target name="main">
+    <copy file="/Users/manusaxena/Documents/projects/mycrmworld/common-pom/.git-hooks/pre-commit" tofile="/Users/manusaxena/Documents/projects/mycrmworld/common-pom/.git/hooks/pre-commit" overwrite="true" />
+    <chmod file="/Users/manusaxena/Documents/projects/mycrmworld/common-pom/.git/hooks/pre-commit" perm="755" />
+  </target>
+</project>
