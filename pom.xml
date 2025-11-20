@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycrmworld</groupId>
     <artifactId>common-pom</artifactId>
-    <version>1.14-SNAPSHOT</version>
+    <version>1.19-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Parent POM</name>
     <description>Parent POM for Mycrmworld microservices</description>
@@ -41,11 +41,20 @@
         <open.csv>5.8</open.csv>
         <common.text>1.10.0</common.text>
         <spotless.version>2.43.0</spotless.version>
+        <common.hooks>1.0.0-SNAPSHOT</common.hooks>
         
         <!-- Add other versions as needed -->
     </properties>
     <dependencyManagement>
         <dependencies>
+            
+            
+            <dependency>
+                <groupId>com.mycrmworld</groupId>
+                <artifactId>common-hooks</artifactId>
+                <version>${common.hooks}</version>
+           
+            </dependency>
             <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>mail</artifactId>
@@ -53,7 +62,7 @@
             </dependency>
             <!-- Manage dependency versions here to avoid repetition -->
 
-            
+          
             <dependency>
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
@@ -186,6 +195,7 @@
             <name>GitHub OWNER Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/bittu141214/common-pom</url>
         </repository>
+        
         <snapshotRepository>
             <id>github</id>
             <name>GitHub OWNER Apache Maven Packages - Snapshots</name>
@@ -241,46 +251,81 @@
     </build>
     <profiles>
         <profile>
-            <id>install-git-hooks
-            </id>
+            <id>install-pre-commit-hook</id>
+
             <activation>
+                <property>
+                    <name>!skip.git.hooks</name>
+                </property>
                 <file>
                     <exists>.git</exists>
                 </file>
             </activation>
+
             <build>
                 <plugins>
+                    <!-- Extract hook from common-lib -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-hooks</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.mycrmworld</groupId>
+                                            <artifactId>common-hooks</artifactId>
+                                            <version>1.0.0</version>
+                                            <type>jar</type>
+                                            <includes>git-hooks/**</includes>
+                                            <outputDirectory>${project.build.directory}/hooks</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Install into microservice .git/hooks/ -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>3.1.0</version>
                         <executions>
                             <execution>
-                                  <id>install-pre-commit-hook</id>
-                                   <phase>initialize</phase>
-                                   <goals>
-                                       <goal>
-                                           run
-                                       </goal>
-                                   </goals>
-                                   <configuration>
-                                       <target>
-                                           
-                                           <copy file="${project.basedir}/.git-hooks/pre-commit"
-                                           tofile="${project.basedir}/.git/hooks/pre-commit"
-                                           overwrite="true"/>
-                                            <chmod file="${project.basedir}/.git/hooks/pre-commit" perm="755" />
-                                       </target>
-                                           
-                                        
-                                   </configuration>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <copy
+                                            file="${project.build.directory}/hooks/git-hooks/pre-commit"
+                                            tofile="${project.basedir}/.git/hooks/pre-commit"
+                                            overwrite="true"
+                                            failonerror="false"/>
+
+                                        <chmod
+                                            file="${project.basedir}/.git/hooks/pre-commit"
+                                            perm="755"
+                                            failonerror="false"/>
+                                    </target>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
+
                 </plugins>
             </build>
-            
+
         </profile>
+
             
     </profiles>
     
