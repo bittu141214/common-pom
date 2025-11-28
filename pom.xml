@@ -281,7 +281,7 @@
                                         <artifactItem>
                                             <groupId>com.mycrmworld</groupId>
                                             <artifactId>common-hooks</artifactId>
-                                            <version>1.0.0</version>
+                                            <version>${common.hooks}</version>
                                             <type>jar</type>
                                             <includes>git-hooks/**</includes>
                                             <outputDirectory>${project.build.directory}/hooks</outputDirectory>
