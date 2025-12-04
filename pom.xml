@@ -223,7 +223,7 @@
                             <importOrder>
                                 <order>java,javax,org,com</order>
                             </importOrder>
-                            <trimTrainlingWhitespace></trimTrainlingWhitespace>
+                            <trimTrailingWhitespace></trimTrailingWhitespace>
                             <endWithNewline/>
 
                             <includes>
