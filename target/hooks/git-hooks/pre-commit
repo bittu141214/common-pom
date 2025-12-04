@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "Running Spotless before commit..."
+
+# Format the code
+mvn -q spotless:apply
+
+# Add changes back to commit
+git add .
+
